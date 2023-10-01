@@ -1,7 +1,7 @@
 [![Publish Docker Image](https://github.com/wiiu-env/libnotifications/actions/workflows/push_image.yml/badge.svg)](https://github.com/wiiu-env/libnotifications/actions/workflows/push_image.yml)
 
 # libnotifications
-Requires the [NotificationModule](https://github.com/wiiu-env/NotificationModule) to be running via [WUMSLoader](https://github.com/wiiu-env/WUMSLoader).
+Requires the [NotificationModule](https://github.com/theawesomecoder61/NotificationModule) to be running via [WUMSLoader](https://github.com/wiiu-env/WUMSLoader).
 Requires [wut](https://github.com/devkitPro/wut) for building.
 Install via `make install`.
 
