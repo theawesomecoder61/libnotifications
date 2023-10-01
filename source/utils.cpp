@@ -39,6 +39,14 @@ static NotificationModuleStatus (*sNMFinishDynamicNotification)(NotificationModu
                                                                 float durationBeforeFadeOutInSeconds,
                                                                 float shakeDurationInSeconds) = nullptr;
 
+
+static NotificationModuleStatus (*sNMEnableOverlay)(NotificationModuleHandle *, NMColor) = nullptr;
+static NotificationModuleStatus (*sNMSetOverlayAlpha)(NotificationModuleHandle, float) = nullptr;
+static NotificationModuleStatus (*sNMGetOverlayAlpha)(NotificationModuleHandle, float *) = nullptr;
+static NotificationModuleStatus (*sNMUpdateOverlayBackgroundColor)(NotificationModuleHandle, NMColor) = nullptr;
+static NotificationModuleStatus (*sNMDisableOverlay)(NotificationModuleHandle handle) = nullptr;
+
+
 static bool sLibInitDone = false;
 std::map<NotificationModuleNotificationType, NMDefaultValueStore> sDefaultValues;
 
@@ -125,6 +133,32 @@ NotificationModuleStatus NotificationModule_InitLibrary() {
     if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMFinishDynamicNotification", (void **) &sNMFinishDynamicNotification) != OS_DYNLOAD_OK) {
         DEBUG_FUNCTION_LINE_ERR("FindExport NMFinishDynamicNotification failed.");
         sNMAddStaticNotification = nullptr;
+    }
+
+
+    if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMEnableOverlay", (void **) &sNMEnableOverlay) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE_ERR("FindExport NMEnableOverlay failed.");
+        sNMEnableOverlay = nullptr;
+    }
+
+    if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMSetOverlayAlpha", (void **) &sNMSetOverlayAlpha) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE_ERR("FindExport NMSetOverlayAlpha failed.");
+        sNMSetOverlayAlpha = nullptr;
+    }
+
+    if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMGetOverlayAlpha", (void **) &sNMGetOverlayAlpha) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE_ERR("FindExport NMGetOverlayAlpha failed.");
+        sNMGetOverlayAlpha = nullptr;
+    }
+
+    if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMUpdateOverlayBackgroundColor", (void **) &sNMUpdateOverlayBackgroundColor) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE_ERR("FindExport NMUpdateOverlayBackgroundColor failed.");
+        sNMUpdateOverlayBackgroundColor = nullptr;
+    }
+
+    if (OSDynLoad_FindExport(sModuleHandle, OS_DYNLOAD_EXPORT_FUNC, "NMDisableOverlay", (void **) &sNMDisableOverlay) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE_ERR("FindExport NMDisableOverlay failed.");
+        sNMDisableOverlay = nullptr;
     }
 
     sDefaultValues.clear();
@@ -489,4 +523,80 @@ NotificationModuleStatus NotificationModule_FinishDynamicNotificationWithShake(N
                                                           NOTIFICATION_MODULE_STATUS_FINISH_WITH_SHAKE,
                                                           durationBeforeFadeOutInSeconds,
                                                           shakeDuration);
+}
+
+
+NotificationModuleStatus NotificationModule_EnableOverlay(NotificationModuleHandle *outHandle, NMColor backgroundColor) {
+    if (sNotificationModuleVersion == NOTIFICATION_MODULE_API_VERSION_ERROR) {
+        return NOTIFICATION_MODULE_RESULT_LIB_UNINITIALIZED;
+    }
+    if (sNMEnableOverlay == nullptr || sNotificationModuleVersion < 1) {
+        return NOTIFICATION_MODULE_RESULT_UNSUPPORTED_COMMAND;
+    }
+
+    if (outHandle == nullptr) {
+        return NOTIFICATION_MODULE_RESULT_INVALID_ARGUMENT;
+    }
+
+    return reinterpret_cast<decltype(&NotificationModule_EnableOverlay)>(sNMEnableOverlay)(outHandle, backgroundColor);
+}
+
+NotificationModuleStatus NotificationModule_SetOverlayAlpha(NotificationModuleHandle handle, float alpha) {
+    if (sNotificationModuleVersion == NOTIFICATION_MODULE_API_VERSION_ERROR) {
+        return NOTIFICATION_MODULE_RESULT_LIB_UNINITIALIZED;
+    }
+    if (sNMUpdateOverlayBackgroundColor == nullptr || sNotificationModuleVersion < 1) {
+        return NOTIFICATION_MODULE_RESULT_UNSUPPORTED_COMMAND;
+    }
+
+    if (handle == 0) {
+        return NOTIFICATION_MODULE_RESULT_INVALID_ARGUMENT;
+    }
+
+    return reinterpret_cast<decltype(&NotificationModule_SetOverlayAlpha)>(sNMSetOverlayAlpha)(handle, alpha);
+}
+
+NotificationModuleStatus NotificationModule_GetOverlayAlpha(NotificationModuleHandle handle, float *alpha) {
+    if (sNotificationModuleVersion == NOTIFICATION_MODULE_API_VERSION_ERROR) {
+        return NOTIFICATION_MODULE_RESULT_LIB_UNINITIALIZED;
+    }
+    if (sNMGetOverlayAlpha == nullptr || sNotificationModuleVersion < 1) {
+        return NOTIFICATION_MODULE_RESULT_UNSUPPORTED_COMMAND;
+    }
+
+    if (handle == 0) {
+        return NOTIFICATION_MODULE_RESULT_INVALID_ARGUMENT;
+    }
+
+    return reinterpret_cast<decltype(&NotificationModule_GetOverlayAlpha)>(sNMGetOverlayAlpha)(handle, alpha);
+}
+
+NotificationModuleStatus NotificationModule_UpdateOverlayBackgroundColor(NotificationModuleHandle handle, NMColor backgroundColor) {
+    if (sNotificationModuleVersion == NOTIFICATION_MODULE_API_VERSION_ERROR) {
+        return NOTIFICATION_MODULE_RESULT_LIB_UNINITIALIZED;
+    }
+    if (sNMUpdateOverlayBackgroundColor == nullptr || sNotificationModuleVersion < 1) {
+        return NOTIFICATION_MODULE_RESULT_UNSUPPORTED_COMMAND;
+    }
+
+    if (handle == 0) {
+        return NOTIFICATION_MODULE_RESULT_INVALID_ARGUMENT;
+    }
+
+    return reinterpret_cast<decltype(&NotificationModule_UpdateOverlayBackgroundColor)>(sNMUpdateOverlayBackgroundColor)(handle, backgroundColor);
+}
+
+NotificationModuleStatus NotificationModule_DisableOverlay(NotificationModuleHandle handle) {
+    if (sNotificationModuleVersion == NOTIFICATION_MODULE_API_VERSION_ERROR) {
+        return NOTIFICATION_MODULE_RESULT_LIB_UNINITIALIZED;
+    }
+    if (sNMDisableOverlay == nullptr || sNotificationModuleVersion < 1) {
+        return NOTIFICATION_MODULE_RESULT_UNSUPPORTED_COMMAND;
+    }
+
+    if (handle == 0) {
+        return NOTIFICATION_MODULE_RESULT_INVALID_ARGUMENT;
+    }
+
+    return reinterpret_cast<decltype(&NotificationModule_DisableOverlay)>(sNMDisableOverlay)(handle);
 }

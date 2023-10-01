@@ -368,6 +368,14 @@ NotificationModuleStatus NotificationModule_FinishDynamicNotificationWithShake(N
                                                                                float durationBeforeFadeOutInSeconds,
                                                                                float shakeDuration);
 
+
+NotificationModuleStatus NotificationModule_EnableOverlay(NotificationModuleHandle *outHandle, NMColor backgroundColor);
+NotificationModuleStatus NotificationModule_SetOverlayAlpha(NotificationModuleHandle outHandle, float alpha);
+NotificationModuleStatus NotificationModule_GetOverlayAlpha(NotificationModuleHandle outHandle, float *alpha);
+NotificationModuleStatus NotificationModule_UpdateOverlayBackgroundColor(NotificationModuleHandle handle, NMColor backgroundColor);
+NotificationModuleStatus NotificationModule_DisableOverlay(NotificationModuleHandle handle);
+
+
 // Copy pasted from libcurl...
 /* the typechecker doesn't work in C++ (yet) */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) &&                   \
